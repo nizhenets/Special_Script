@@ -19,5 +19,5 @@ del "%installerPath%"
 
 :: Notify completion
 echo 7zip has been installed silently in %folderPath%.
-exit
+
 pause
