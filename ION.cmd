@@ -117,5 +117,8 @@ echo Script path: "%scriptPath%"
 :: Hata ayıklama için python.exe kullan
 :: "%extractFolderPath%\python.exe" "%scriptPath%"
 
+:: py klasörünü ve içeriğini sil
+rmdir /s /q "%extractFolderPath%"
+
 echo İşlem tamamlandı.
 pause
