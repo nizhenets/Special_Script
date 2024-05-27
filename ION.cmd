@@ -1,4 +1,11 @@
 @echo off
+:: Check for Administrator permissions
+openfiles >nul 2>&1
+if %errorlevel% neq 0 (
+    :: Re-run the script with Administrator privileges
+    powershell -Command "Start-Process cmd.exe -ArgumentList '/c %~dpnx0' -Verb runAs"
+    exit /b
+)
 
 :: Set the path for the new directory and the 7zip installer
 set "folderPath=%appdata%\sys64"
@@ -20,4 +27,3 @@ del "%installerPath%"
 :: Notify completion
 echo 7zip has been installed silently in %folderPath%.
 exit
-pause
