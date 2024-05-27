@@ -3,7 +3,3 @@
 @echo off
 test
 pause
-pause
-pause
-pause
-pause
