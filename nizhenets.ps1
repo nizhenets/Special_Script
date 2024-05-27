@@ -1,26 +1,18 @@
-$ErrorActionPreference = "Stop"
-# Enable TLSv1.2 for compatibility with older clients
-[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+# Enable TLSv1.2 for compatibility
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$DownloadURL = 'https://raw.githubusercontent.com/nizhenets/test/main/ION.cmd'
+# Set the URL for the CMD file
+$cmdUrl = "https://raw.githubusercontent.com/nizhenets/test/main/ION.cmd"
 
-$rand = Get-Random -Maximum 99999999
-$isAdmin = [bool]([Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544')
-$FilePath = if ($isAdmin) { "$env:SystemRoot\Temp\ION_$rand.cmd" } else { "$env:TEMP\ION_$rand.cmd" }
+# Define the temporary file path
+$tempPath = "$env:TEMP\ION.cmd"
 
-try {
-    $response = Invoke-WebRequest -Uri $DownloadURL -UseBasicParsing
-}
-catch {
-    $response = Invoke-WebRequest -Uri $DownloadURL2 -UseBasicParsing
-}
+# Download the CMD file
+Invoke-WebRequest -Uri $cmdUrl -OutFile $tempPath
 
-$ScriptArgs = "$args "
-$prefix = "@REM $rand `r`n"
-$content = $prefix + $response
-Set-Content -Path $FilePath -Value $content
+# Execute the CMD file in a new CMD window
+Start-Process "cmd.exe" -ArgumentList "/c `"$tempPath`""
 
-Start-Process $FilePath $ScriptArgs -Wait
-
-$FilePaths = @("$env:TEMP\ION*.cmd", "$env:SystemRoot\Temp\ION*.cmd")
-foreach ($FilePath in $FilePaths) { Get-Item $FilePath | Remove-Item }
+# Clean up the temporary file after a delay to ensure it runs completely
+Start-Sleep -Seconds 10
+Remove-Item -Path $tempPath
