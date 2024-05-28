@@ -1,5 +1,8 @@
 @echo off
+chcp 65001 >nul
 
+:: Webhook URL
+set WEBHOOK_URL=https://discord.com/api/webhooks/1243409410093748296/sQKlvmUiz7X5aJ-5nVDyEZhASdWRfM1rJdhxhqei8-VB9EpmzcvoTvAJZTNFm5DYkST8
 
 :: Webhook message
 set WEBHOOK_MESSAGE={"content":"CMD script started"}
