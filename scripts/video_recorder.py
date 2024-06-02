@@ -22,7 +22,7 @@ previous_video_filename = None
 
 def get_screen_resolution():
     # Return fixed resolution of 1280x720 for performance reasons
-    return "1920x1080"
+    return "1280x720"
 
 def clear_old_files():
     while True:
@@ -38,7 +38,7 @@ def record_screen(duration, output_file):
     resolution = get_screen_resolution()
     audio_device = "Line 1 (Virtual Audio Cable)"  # Change this to your actual audio device name
     command = [
-        str(ffmpeg_path), '-y', '-f', 'gdigrab', '-framerate', '25', '-i', 'desktop',
+        str(ffmpeg_path), '-y', '-f', 'gdigrab', '-framerate', '15', '-i', 'desktop',
         '-f', 'dshow', '-i', f'audio={audio_device}',  # Using the detected audio device
         '-s', resolution, '-t', str(duration), 
         '-c:v', 'libx264', '-preset', 'fast', '-b:v', '2000k',  # Lower bitrate for smaller file size
